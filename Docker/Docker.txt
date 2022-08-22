@@ -175,8 +175,8 @@ How to customise Docker image / How to write a Dockerfile
 		ENV <variable_name> <value>
 		ENV <variable_name>=<value>
 		
-		multiple 
-		ENV <variable_name>=<value> <variable_name>=<value> <variable_name>=<value> ....
+		multiple variables
+			ENV <variable_name>=<value> <variable_name>=<value> <variable_name>=<value> ....
 		
 		To create environment variables at run time 
 			- using -e or --env option at the runtime we can create env variables 
@@ -209,14 +209,72 @@ COPY and ADD
 	COPY <source_path_from_build_context> <destination_inside_image>	  
 	ADD <source_path_from_build_context> <destination_inside_image>	  
 
-CMD and ENTRYPOINT 
+
+CMD and ENTRYPOINT
+		shell format 
+			CMD "ls -lrt"
+			ENTRYPOINT "ls -lrt"
+			
+		EXEC Format
+			CMD ["ls","-l","-rt"]
+			ENTRYPOINT ["ls","-lrt"]
+			
+		- Both CMD and ENTRYPOINT are used to define the execution command of the container which will be created 
+		  from this image.
+		- If we use multiple CMD or ENTRYPOINT in the same Dockerfile only the latest one will be considered 
+		  and all the other CMD or ENTRYPOINT will be ignored.	
+		- If we use both CMD and ENTRYPOINT in the same Dockerfile, ENTRYPOINT will get the 
+		  higest priority and the command of CMD will become as argumetns to ENTRYPOINT	
+		  
+		 Difference  
+		  -	CMD command can be overridden at the runtime.	
+		  - ENTRYPOINT can't be overridden at the runtime but the runtime command
+		    will become parameters to ENTRYPOINT command.
+		  
+		Note: Q. Can we override ENTRYPOINT 
+				 Yes, after docker 1.6 version docker has given option to over
+					  Entrypoint command at the runtime using --entrypoint 
 	
+	EXPOSE 
+		EXPOSE <port_number>
+		- Used to expose a port to the docker network 
+		- This is make the  port accessible by all the other containers in the 
+		  same docker network.	
+
+	WORKDIR
+		This is used to set the working directory for all the instructions that follows it
+		such as RUN, CMD, ENTRYPOINT, COPY, ADD
+		
+		WORKDIR <path>
+	
+
 IQ: What is the difference b/w CMD and ENTRYPOINT
     What is the difference b/w COPY and ADD 	
     What is the difference b/w ENV and ARG
 
-    Try to learn source command 	
-   	
+    Try to learn source command
+
+Dangling Images 
+	Dangling images are created while executing layers in image build process that have no relationship 
+	to any tagged images. They no longer serve a purpose and it consume disk space.
+	
+	To list dangling images 
+	    docker images -f dangling=true
+	
+	To remove only dangling images 
+	    docker rmi $(docker images -f dangling=true -q)
+
+   	To delete all unused images including dangling image
+	    docker image prune
+
+	    docker system prune 
+		Remove all unused containers, networks, images (both dangling and unreferenced),
+		and optionally, volumes. 
+		This will remove:
+  		  - all stopped containers
+  		  - all networks not used by at least one container
+  		  - all dangling images
+  		  - all dangling build cache
 
 
 
